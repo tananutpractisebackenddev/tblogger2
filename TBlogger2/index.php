@@ -1,0 +1,39 @@
+<?php
+use Api\Test;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use MrMe\Web\Router as Router;
+use Api\Controller\Board as Board;
+use Api\Controller\User as User;
+
+
+//require_once "./vendor/dompdf/dompdf/dompdf_config.inc.php";
+require_once "CONFIG.php";
+$loader = require './vendor/autoload.php';
+// $log = new Logger('name');
+// $log->pushHandler(new StreamHandler('app.log', Logger::WARNING));
+// $log->addWarning('Foo');
+
+//  $x = new Test();
+
+//  echo $x->getText();
+//  $x->start();
+define("DOMPDF_ENABLE_REMOTE", true);
+ini_set('display_startup_errors', $_CONFIG['COMMON']['DEBUG']);
+ini_set('display_errors', $_CONFIG['COMMON']['DEBUG']); // set to 0 when not debugging
+error_reporting(E_ALL | ~E_NOTICE);
+
+$router = new Router($_CONFIG);
+
+$router->route("user/{F}" , new User());
+$router->route("board/{F}", new Board());
+// $router = new Router($_CONFIG);
+// $router->route("pickup/{F}", new Pickup());
+// $router->route("order/{F}", new Order());
+// $router->route("package/{F}", new Package());
+// $router->route("setting/booking/disable/{F}", new Setting());
+// $router->route("user/{F}", new User());
+// $router->route("subscribe/{F}", new Subscribe());
+//$router->begin();
+
+?>
