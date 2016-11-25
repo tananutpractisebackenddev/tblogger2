@@ -31,7 +31,13 @@ class Board extends Controller
         }
         else
         {
-            $this->response->success(array("status" => true));
+            $lastId = $this->db->getLastInsertId();
+            $table	  = "boards b JOIN users u ON b.user_id = u.id";
+            $select   = "b.id, b.message, u.first_name, u.last_name, u.picture_src";
+            $this->db->select($table, $select);
+            $this->db->where("b.id", "=", $lastId);
+            $model    = $this->db->executeReader();
+			$this->response->success(array("status" => true , "message" => $model));
         }
     }
 
@@ -43,24 +49,30 @@ class Board extends Controller
 		header('Content-Type: application/json');
 
         $user_id  = $this->request->body->user_id;
-        $board_id = $this->request->body->board_id;
+        $board_id = $this->request->body->post_id;
         $text     = $this->request->body->text;
 
         $table    = "boards";
-        $set      = "message = @text";
-        $this->db->bindParam("@text", "'$text'");
-        $this->db->update($table, $sets)
-                 ->where("id", "LIKE", $board_id);
+        $set      = ["message = @text"];
+        $clause = "WHERE id = @board_id";
+        $this->db->update($table, $set, $clause);
+        $this->db->bindParam("@text", "$text");
+        $this->db->bindParam("@board_id", $board_id);
 
         $err      = $this->db->execute();
+
         if ($err)
 		{
-			$this->response->error(array("status" => false,
-		        				         "error" => $err));
+			$this->response->error(array("status" => false,"error" => $err));
 		}
 		else
 		{
-			$this->response->success(array("status" => true));
+            $table	  = "boards b JOIN users u ON b.user_id = u.id";
+            $select   = "b.id, b.message, u.first_name, u.last_name, u.picture_src";
+            $this->db->select($table, $select);
+            $this->db->where("b.user_id", "=", $user_id);
+            $model    = $this->db->executeReader();
+			$this->response->success(array("status" => true , "message" => $model));
 		}
     }
 
@@ -71,8 +83,10 @@ class Board extends Controller
 		header('Access-Control-Allow-Methods: *');
 		header('Content-Type: application/json');
 
-        //$user_id  = $this->request->body->user_id;
+        $user_id  = $this->request->body->user_id;
         $board_id = $this->request->body->post_id;
+
+        // $test = $this->request->params->id;
 
         $this->db->delete('`boards`', "WHERE id = @board_id");
         $this->db->bindParam("@board_id", $board_id);
@@ -85,7 +99,12 @@ class Board extends Controller
 		}
 		else
         {
-			$this->response->success(array("status" => true));
+            $table	  = "boards b JOIN users u ON b.user_id = u.id";
+            $select   = "b.id, b.message, u.first_name, u.last_name, u.picture_src";
+            $this->db->select($table, $select);
+            $this->db->where("b.user_id", "=", $user_id);
+            $model    = $this->db->executeReader();
+			$this->response->success(array("status" => true , "message" => $model));
         }
     }
 
